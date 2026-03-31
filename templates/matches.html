@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matching Results</title>
+    <title>LifeLink - Match Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Matching Results</h1>
-        <p class="subtitle">City-only matching with urgency-based score</p>
+        <header class="hero">
+            <div>
+                <p class="brand">LifeLink</p>
+                <h1>Match Dashboard</h1>
+                <p class="subtitle">City-based organ matching with urgency and compatibility scoring.</p>
+            </div>
+            <a class="btn btn-ghost" href="/">Back to Registration</a>
+        </header>
 
         {% if error %}
             <div class="alert error">{{ error }}</div>
         {% endif %}
-
-        <div class="actions">
-            <a class="btn secondary" href="/">Back to Home</a>
-        </div>
 
         <div class="card filter-card">
             <h3>Search and Filters</h3>
@@ -105,7 +107,7 @@
                 </table>
             </div>
         {% else %}
-            <p>No matches found yet. Add donors and recipients first.</p>
+            <p>No matches found yet. Add donor and recipient records, then apply filters.</p>
         {% endif %}
     </div>
 </body>

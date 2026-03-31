@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organ Donation Matching System</title>
+    <title>LifeLink - Organ Donation Network</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Organ Donation Matching System</h1>
-        <p class="subtitle">Beginner-friendly project with MySQL + Flask + Matching Logic</p>
+        <header class="hero">
+            <div>
+                <p class="brand">LifeLink</p>
+                <h1>Organ Donation Network</h1>
+                <p class="subtitle">Connecting donors and recipients through smart compatibility matching.</p>
+            </div>
+            <a class="btn btn-ghost" href="/matches">Open Match Dashboard</a>
+        </header>
 
         {% if request.args.get('msg') %}
             <div class="alert success">{{ request.args.get('msg') }}</div>
@@ -20,7 +26,7 @@
 
         <div class="grid">
             <div class="card">
-                <h2>Add Donor</h2>
+                <h2>Register Donor</h2>
                 <form action="/add_donor" method="POST">
                     <label>Name</label>
                     <input type="text" name="name" required>
@@ -43,7 +49,7 @@
                     </select>
 
                     <label>City</label>
-                    <input type="text" name="city" required>
+                    <input type="text" name="city" placeholder="e.g. Delhi" required>
 
                     <label>Contact</label>
                     <input type="text" name="contact">
@@ -53,7 +59,7 @@
             </div>
 
             <div class="card">
-                <h2>Add Recipient</h2>
+                <h2>Register Recipient</h2>
                 <form action="/add_recipient" method="POST">
                     <label>Name</label>
                     <input type="text" name="name" required>
@@ -76,7 +82,7 @@
                     </select>
 
                     <label>City</label>
-                    <input type="text" name="city" required>
+                    <input type="text" name="city" placeholder="e.g. Delhi" required>
 
                     <label>Urgency Level (1-5)</label>
                     <input type="number" name="urgency_level" min="1" max="5" required>
@@ -88,7 +94,7 @@
 
         <div class="actions">
             <a class="btn" href="/matches">View Matching Results</a>
-            <a class="btn secondary" href="/view_matches">View Matches (JSON API)</a>
+            <a class="btn secondary" href="/view_matches">View JSON API</a>
         </div>
     </div>
 </body>

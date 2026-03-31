@@ -110,11 +110,66 @@ def view_matches():
     organ = request.args.get("organ", "").strip()
     recipient_blood = request.args.get("recipient_blood", "").strip()
     sort_by = request.args.get("sort_by", "urgency")
-    sort_field = "r.urgency_level DESC, match_score DESC"
+    sort_field = "urgency_level DESC, match_score DESC"
     if sort_by == "score":
-        sort_field = "match_score DESC, r.urgency_level DESC"
+        sort_field = "match_score DESC, urgency_level DESC"
+    recipient_limit = 80
+    top_donors_per_recipient = 3
 
     query = f"""
+    WITH filtered_recipients AS (
+        SELECT
+            r.recipient_id,
+            r.name,
+            r.blood_group,
+            r.organ_needed,
+            r.city,
+            r.urgency_level
+        FROM recipients r
+        WHERE (%s = '' OR r.city = %s)
+          AND (%s = '' OR r.organ_needed = %s)
+          AND (%s = '' OR r.blood_group = %s)
+        ORDER BY r.urgency_level DESC, r.recipient_id DESC
+        LIMIT %s
+    ),
+    ranked AS (
+        SELECT
+            fr.recipient_id,
+            fr.name AS recipient_name,
+            fr.blood_group AS recipient_blood_group,
+            fr.organ_needed,
+            fr.city,
+            fr.urgency_level,
+            d.donor_id,
+            d.name AS donor_name,
+            d.blood_group AS donor_blood_group,
+            (
+                50
+                + 30
+                + 20
+                + CASE WHEN d.blood_group = fr.blood_group THEN 10 ELSE 0 END
+                + (fr.urgency_level * 10)
+            ) AS match_score,
+            ROW_NUMBER() OVER (
+                PARTITION BY fr.recipient_id
+                ORDER BY
+                    (
+                        50
+                        + 30
+                        + 20
+                        + CASE WHEN d.blood_group = fr.blood_group THEN 10 ELSE 0 END
+                        + (fr.urgency_level * 10)
+                    ) DESC,
+                    d.donor_id
+            ) AS rn
+        FROM filtered_recipients fr
+        JOIN donors d
+            ON d.organ = fr.organ_needed
+           AND d.city = fr.city
+        JOIN blood_compatibility bc
+            ON bc.donor_blood_group = d.blood_group
+           AND bc.recipient_blood_group = fr.blood_group
+    )
     SELECT
         recipient_id,
         recipient_name,
@@ -127,35 +182,9 @@ def view_matches():
         donor_blood_group,
         match_score,
         CASE WHEN rn = 1 THEN 1 ELSE 0 END AS is_best_match
-    FROM (
-        SELECT
-            r.recipient_id,
-            r.name AS recipient_name,
-            r.blood_group AS recipient_blood_group,
-            r.organ_needed,
-            r.city,
-            r.urgency_level,
-            d.donor_id,
-            d.name AS donor_name,
-            d.blood_group AS donor_blood_group,
-            (50 + 30 + 20 + (r.urgency_level * 10)) AS match_score,
-            ROW_NUMBER() OVER (
-                PARTITION BY r.recipient_id
-                ORDER BY d.donor_id
-            ) AS rn
-        FROM recipients r
-        JOIN donors d
-            ON d.organ = r.organ_needed
-           AND d.city = r.city
-        JOIN blood_compatibility bc
-            ON bc.donor_blood_group = d.blood_group
-           AND bc.recipient_blood_group = r.blood_group
-        WHERE (%s = '' OR r.city = %s)
-          AND (%s = '' OR r.organ_needed = %s)
-          AND (%s = '' OR r.blood_group = %s)
-    ) ranked
+    FROM ranked
+    WHERE rn <= %s
     ORDER BY {sort_field}, recipient_id, donor_id
-    LIMIT 300
     """
 
     connection = None
@@ -163,7 +192,19 @@ def view_matches():
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
-        cursor.execute(query, (city, city, organ, organ, recipient_blood, recipient_blood))
+        cursor.execute(
+            query,
+            (
+                city,
+                city,
+                organ,
+                organ,
+                recipient_blood,
+                recipient_blood,
+                recipient_limit,
+                top_donors_per_recipient,
+            ),
+        )
         matches = cursor.fetchall()
         return jsonify(
             {
@@ -193,11 +234,66 @@ def matches_page():
     organ = request.args.get("organ", "").strip()
     recipient_blood = request.args.get("recipient_blood", "").strip()
     sort_by = request.args.get("sort_by", "urgency")
-    sort_field = "r.urgency_level DESC, match_score DESC"
+    sort_field = "urgency_level DESC, match_score DESC"
     if sort_by == "score":
-        sort_field = "match_score DESC, r.urgency_level DESC"
+        sort_field = "match_score DESC, urgency_level DESC"
+    recipient_limit = 80
+    top_donors_per_recipient = 3
 
     query = f"""
+    WITH filtered_recipients AS (
+        SELECT
+            r.recipient_id,
+            r.name,
+            r.blood_group,
+            r.organ_needed,
+            r.city,
+            r.urgency_level
+        FROM recipients r
+        WHERE (%s = '' OR r.city = %s)
+          AND (%s = '' OR r.organ_needed = %s)
+          AND (%s = '' OR r.blood_group = %s)
+        ORDER BY r.urgency_level DESC, r.recipient_id DESC
+        LIMIT %s
+    ),
+    ranked AS (
+        SELECT
+            fr.recipient_id,
+            fr.name AS recipient_name,
+            fr.blood_group AS recipient_blood_group,
+            fr.organ_needed,
+            fr.city,
+            fr.urgency_level,
+            d.donor_id,
+            d.name AS donor_name,
+            d.blood_group AS donor_blood_group,
+            (
+                50
+                + 30
+                + 20
+                + CASE WHEN d.blood_group = fr.blood_group THEN 10 ELSE 0 END
+                + (fr.urgency_level * 10)
+            ) AS match_score,
+            ROW_NUMBER() OVER (
+                PARTITION BY fr.recipient_id
+                ORDER BY
+                    (
+                        50
+                        + 30
+                        + 20
+                        + CASE WHEN d.blood_group = fr.blood_group THEN 10 ELSE 0 END
+                        + (fr.urgency_level * 10)
+                    ) DESC,
+                    d.donor_id
+            ) AS rn
+        FROM filtered_recipients fr
+        JOIN donors d
+            ON d.organ = fr.organ_needed
+           AND d.city = fr.city
+        JOIN blood_compatibility bc
+            ON bc.donor_blood_group = d.blood_group
+           AND bc.recipient_blood_group = fr.blood_group
+    )
     SELECT
         recipient_id,
         recipient_name,
@@ -210,42 +306,28 @@ def matches_page():
         donor_blood_group,
         match_score,
         CASE WHEN rn = 1 THEN 1 ELSE 0 END AS is_best_match
-    FROM (
-        SELECT
-            r.recipient_id,
-            r.name AS recipient_name,
-            r.blood_group AS recipient_blood_group,
-            r.organ_needed,
-            r.city,
-            r.urgency_level,
-            d.donor_id,
-            d.name AS donor_name,
-            d.blood_group AS donor_blood_group,
-            (50 + 30 + 20 + (r.urgency_level * 10)) AS match_score,
-            ROW_NUMBER() OVER (
-                PARTITION BY r.recipient_id
-                ORDER BY d.donor_id
-            ) AS rn
-        FROM recipients r
-        JOIN donors d
-            ON d.organ = r.organ_needed
-           AND d.city = r.city
-        JOIN blood_compatibility bc
-            ON bc.donor_blood_group = d.blood_group
-           AND bc.recipient_blood_group = r.blood_group
-        WHERE (%s = '' OR r.city = %s)
-          AND (%s = '' OR r.organ_needed = %s)
-          AND (%s = '' OR r.blood_group = %s)
-    ) ranked
+    FROM ranked
+    WHERE rn <= %s
     ORDER BY {sort_field}, recipient_id, donor_id
-    LIMIT 300
     """
     connection = None
     cursor = None
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
-        cursor.execute(query, (city, city, organ, organ, recipient_blood, recipient_blood))
+        cursor.execute(
+            query,
+            (
+                city,
+                city,
+                organ,
+                organ,
+                recipient_blood,
+                recipient_blood,
+                recipient_limit,
+                top_donors_per_recipient,
+            ),
+        )
         matches = cursor.fetchall()
         filters = {
             "city": city,

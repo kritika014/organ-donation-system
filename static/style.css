@@ -5,8 +5,20 @@
 
 body {
     margin: 0;
-    background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 100%);
+    background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 40%, #ecfeff 100%);
     color: #0f172a;
+    background-size: 300% 300%;
+    animation: bgShift 14s ease-in-out infinite;
+}
+
+@keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body { animation: none; }
 }
 
 .container {
@@ -16,7 +28,7 @@ body {
 }
 
 .hero {
-    background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 55%, #0ea5e9 100%);
     color: #ffffff;
     border-radius: 14px;
     padding: 20px 22px;
@@ -25,6 +37,14 @@ body {
     align-items: center;
     gap: 16px;
     box-shadow: 0 8px 24px rgba(15, 118, 110, 0.22);
+    background-size: 200% 200%;
+    animation: heroShift 10s ease-in-out infinite;
+}
+
+@keyframes heroShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .brand {
@@ -54,8 +74,8 @@ h1 {
 }
 
 .card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: linear-gradient(180deg, #ffffff 0%, #f4fbff 100%);
+    border: 1px solid #dbeafe;
     border-radius: 14px;
     padding: 18px;
     box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
@@ -160,8 +180,8 @@ button:hover, .btn:hover {
 
 .table-wrap {
     overflow-x: auto;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    border: 1px solid #dbeafe;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
     margin-top: 14px;

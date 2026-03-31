@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matching Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Matching Results</h1>
+        <p class="subtitle">City-only matching with urgency-based score</p>
+
+        {% if error %}
+            <div class="alert error">{{ error }}</div>
+        {% endif %}
+
+        <div class="actions">
+            <a class="btn secondary" href="/">Back to Home</a>
+        </div>
+
+        <div class="card filter-card">
+            <h3>Search and Filters</h3>
+            <form class="filter-form" method="GET" action="/matches">
+                <div>
+                    <label>City</label>
+                    <input type="text" name="city" value="{{ filters.city if filters else '' }}" placeholder="e.g. Delhi">
+                </div>
+                <div>
+                    <label>Organ</label>
+                    <select name="organ">
+                        <option value="">All</option>
+                        {% set selected_organ = filters.organ if filters else '' %}
+                        <option value="Kidney" {% if selected_organ == 'Kidney' %}selected{% endif %}>Kidney</option>
+                        <option value="Liver" {% if selected_organ == 'Liver' %}selected{% endif %}>Liver</option>
+                        <option value="Heart" {% if selected_organ == 'Heart' %}selected{% endif %}>Heart</option>
+                        <option value="Lung" {% if selected_organ == 'Lung' %}selected{% endif %}>Lung</option>
+                        <option value="Pancreas" {% if selected_organ == 'Pancreas' %}selected{% endif %}>Pancreas</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Recipient Blood Group</label>
+                    <select name="recipient_blood">
+                        <option value="">All</option>
+                        {% set selected_blood = filters.recipient_blood if filters else '' %}
+                        {% for bg in ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'] %}
+                            <option value="{{ bg }}" {% if selected_blood == bg %}selected{% endif %}>{{ bg }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Sort By</label>
+                    {% set selected_sort = filters.sort_by if filters else 'urgency' %}
+                    <select name="sort_by">
+                        <option value="urgency" {% if selected_sort == 'urgency' %}selected{% endif %}>Urgency (High to Low)</option>
+                        <option value="score" {% if selected_sort == 'score' %}selected{% endif %}>Match Score (High to Low)</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit">Apply Filters</button>
+                </div>
+                <div>
+                    <a class="btn secondary reset-btn" href="/matches">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        {% if matches and matches|length > 0 %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Recipient</th>
+                            <th>Recipient Blood</th>
+                            <th>Urgency</th>
+                            <th>Organ Needed</th>
+                            <th>City</th>
+                            <th>Donor</th>
+                            <th>Donor Blood</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in matches %}
+                        <tr class="{% if m.is_best_match == 1 %}best-match{% endif %}">
+                            <td>{{ m.recipient_name }} (#{{ m.recipient_id }})</td>
+                            <td>{{ m.recipient_blood_group }}</td>
+                            <td>{{ m.urgency_level }}</td>
+                            <td>{{ m.organ_needed }}</td>
+                            <td>{{ m.city }}</td>
+                            <td>{{ m.donor_name }} (#{{ m.donor_id }})</td>
+                            <td>{{ m.donor_blood_group }}</td>
+                            <td>{{ m.match_score }}</td>
+                            <td>
+                                {% if m.is_best_match == 1 %}
+                                    <span class="tag">Best Match</span>
+                                {% else %}
+                                    <span class="tag muted">Candidate</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No matches found yet. Add donors and recipients first.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

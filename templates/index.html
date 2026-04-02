@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeLink - Organ Donation Network</title>
+    <title>Organ Donation System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header class="hero">
-            <div>
-                <p class="brand">LifeLink</p>
-                <h1>Organ Donation Network</h1>
-                <p class="subtitle">Connecting donors and recipients through smart compatibility matching.</p>
-            </div>
-            <a class="btn btn-ghost" href="/matches">Open Match Dashboard</a>
-        </header>
+    <header class="site-nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">Organ Donation System</a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/matches">Match Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Register donors & recipients</h1>
+        <p class="lead">Enter details below. Matches use blood compatibility, organ type, and city.</p>
 
         {% if request.args.get('msg') %}
             <div class="alert success">{{ request.args.get('msg') }}</div>
@@ -26,76 +33,76 @@
 
         <div class="grid">
             <div class="card">
-                <h2>Register Donor</h2>
+                <h2>Add donor</h2>
                 <form action="/add_donor" method="POST">
-                    <label>Name</label>
-                    <input type="text" name="name" required>
+                    <label for="donor-name">Name</label>
+                    <input id="donor-name" type="text" name="name" required>
 
-                    <label>Age</label>
-                    <input type="number" name="age" min="18" max="100" required>
+                    <label for="donor-age">Age</label>
+                    <input id="donor-age" type="number" name="age" min="18" max="100" required>
 
-                    <label>Blood Group</label>
-                    <select name="blood" required>
+                    <label for="donor-blood">Blood group</label>
+                    <select id="donor-blood" name="blood" required>
                         <option value="">Select</option>
                         <option>O-</option><option>O+</option><option>A-</option><option>A+</option>
                         <option>B-</option><option>B+</option><option>AB-</option><option>AB+</option>
                     </select>
 
-                    <label>Organ</label>
-                    <select name="organ" required>
+                    <label for="donor-organ">Organ</label>
+                    <select id="donor-organ" name="organ" required>
                         <option value="">Select</option>
                         <option>Kidney</option><option>Liver</option><option>Heart</option>
                         <option>Lung</option><option>Pancreas</option>
                     </select>
 
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="e.g. Delhi" required>
+                    <label for="donor-city">City</label>
+                    <input id="donor-city" type="text" name="city" placeholder="e.g. Delhi" required>
 
-                    <label>Contact</label>
-                    <input type="text" name="contact">
+                    <label for="donor-contact">Contact</label>
+                    <input id="donor-contact" type="text" name="contact">
 
-                    <button type="submit">Save Donor</button>
+                    <button type="submit" class="btn-primary">Save donor</button>
                 </form>
             </div>
 
             <div class="card">
-                <h2>Register Recipient</h2>
+                <h2>Add recipient</h2>
                 <form action="/add_recipient" method="POST">
-                    <label>Name</label>
-                    <input type="text" name="name" required>
+                    <label for="rec-name">Name</label>
+                    <input id="rec-name" type="text" name="name" required>
 
-                    <label>Age</label>
-                    <input type="number" name="age" min="1" max="100" required>
+                    <label for="rec-age">Age</label>
+                    <input id="rec-age" type="number" name="age" min="1" max="100" required>
 
-                    <label>Blood Group</label>
-                    <select name="blood" required>
+                    <label for="rec-blood">Blood group</label>
+                    <select id="rec-blood" name="blood" required>
                         <option value="">Select</option>
                         <option>O-</option><option>O+</option><option>A-</option><option>A+</option>
                         <option>B-</option><option>B+</option><option>AB-</option><option>AB+</option>
                     </select>
 
-                    <label>Organ Needed</label>
-                    <select name="organ_needed" required>
+                    <label for="rec-organ">Organ needed</label>
+                    <select id="rec-organ" name="organ_needed" required>
                         <option value="">Select</option>
                         <option>Kidney</option><option>Liver</option><option>Heart</option>
                         <option>Lung</option><option>Pancreas</option>
                     </select>
 
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="e.g. Delhi" required>
+                    <label for="rec-city">City</label>
+                    <input id="rec-city" type="text" name="city" placeholder="e.g. Delhi" required>
 
-                    <label>Urgency Level (1-5)</label>
-                    <input type="number" name="urgency_level" min="1" max="5" required>
+                    <label for="rec-urgency">Urgency level (1–5)</label>
+                    <input id="rec-urgency" type="number" name="urgency_level" min="1" max="5" required>
 
-                    <button type="submit">Save Recipient</button>
+                    <button type="submit" class="btn-primary">Save recipient</button>
                 </form>
             </div>
         </div>
 
         <div class="actions">
-            <a class="btn" href="/matches">View Matching Results</a>
-            <a class="btn secondary" href="/view_matches">View JSON API</a>
+            <a class="btn-primary btn-link" href="/matches">View matching results</a>
+            <a class="btn-secondary btn-link" href="/view_matches">View JSON API</a>
         </div>
-    </div>
+    </main>
 </body>
 </html>

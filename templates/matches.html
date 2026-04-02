@@ -3,34 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeLink - Match Dashboard</title>
+    <title>Organ Donation System — Matches</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header class="hero">
-            <div>
-                <p class="brand">LifeLink</p>
-                <h1>Match Dashboard</h1>
-                <p class="subtitle">City-based organ matching with urgency and compatibility scoring.</p>
-            </div>
-            <a class="btn btn-ghost" href="/">Back to Registration</a>
-        </header>
+    <header class="site-nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">Organ Donation System</a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/matches">Match Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Matching results</h1>
+        <p class="lead">Filter by city, organ, and blood group. Sort by urgency or score.</p>
 
         {% if error %}
             <div class="alert error">{{ error }}</div>
         {% endif %}
 
-        <div class="card filter-card">
-            <h3>Search and Filters</h3>
+        <div class="card filter-block">
+            <h2>Search &amp; filters</h2>
             <form class="filter-form" method="GET" action="/matches">
                 <div>
-                    <label>City</label>
-                    <input type="text" name="city" value="{{ filters.city if filters else '' }}" placeholder="e.g. Delhi">
+                    <label for="f-city">City</label>
+                    <input id="f-city" type="text" name="city" value="{{ filters.city if filters else '' }}" placeholder="e.g. Delhi">
                 </div>
                 <div>
-                    <label>Organ</label>
-                    <select name="organ">
+                    <label for="f-organ">Organ</label>
+                    <select id="f-organ" name="organ">
                         <option value="">All</option>
                         {% set selected_organ = filters.organ if filters else '' %}
                         <option value="Kidney" {% if selected_organ == 'Kidney' %}selected{% endif %}>Kidney</option>
@@ -41,8 +48,8 @@
                     </select>
                 </div>
                 <div>
-                    <label>Recipient Blood Group</label>
-                    <select name="recipient_blood">
+                    <label for="f-blood">Recipient blood group</label>
+                    <select id="f-blood" name="recipient_blood">
                         <option value="">All</option>
                         {% set selected_blood = filters.recipient_blood if filters else '' %}
                         {% for bg in ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'] %}
@@ -51,20 +58,22 @@
                     </select>
                 </div>
                 <div>
-                    <label>Sort By</label>
+                    <label for="f-sort">Sort by</label>
                     {% set selected_sort = filters.sort_by if filters else 'urgency' %}
-                    <select name="sort_by">
-                        <option value="urgency" {% if selected_sort == 'urgency' %}selected{% endif %}>Urgency (High to Low)</option>
-                        <option value="score" {% if selected_sort == 'score' %}selected{% endif %}>Match Score (High to Low)</option>
+                    <select id="f-sort" name="sort_by">
+                        <option value="urgency" {% if selected_sort == 'urgency' %}selected{% endif %}>Urgency (high to low)</option>
+                        <option value="score" {% if selected_sort == 'score' %}selected{% endif %}>Match score (high to low)</option>
                     </select>
                 </div>
-                <div>
-                    <button type="submit">Apply Filters</button>
-                </div>
-                <div>
-                    <a class="btn secondary reset-btn" href="/matches">Reset</a>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-primary">Apply filters</button>
+                    <a class="btn-secondary btn-link" href="/matches">Reset</a>
                 </div>
             </form>
+        </div>
+
+        <div class="actions actions-tight">
+            <a class="btn-secondary btn-link" href="/">Back to home</a>
         </div>
 
         {% if matches and matches|length > 0 %}
@@ -73,12 +82,12 @@
                     <thead>
                         <tr>
                             <th>Recipient</th>
-                            <th>Recipient Blood</th>
+                            <th>Recipient blood</th>
                             <th>Urgency</th>
-                            <th>Organ Needed</th>
+                            <th>Organ</th>
                             <th>City</th>
                             <th>Donor</th>
-                            <th>Donor Blood</th>
+                            <th>Donor blood</th>
                             <th>Score</th>
                             <th>Status</th>
                         </tr>
@@ -96,7 +105,7 @@
                             <td>{{ m.match_score }}</td>
                             <td>
                                 {% if m.is_best_match == 1 %}
-                                    <span class="tag">Best Match</span>
+                                    <span class="tag">Best match</span>
                                 {% else %}
                                     <span class="tag muted">Candidate</span>
                                 {% endif %}
@@ -107,8 +116,8 @@
                 </table>
             </div>
         {% else %}
-            <p>No matches found yet. Add donor and recipient records, then apply filters.</p>
+            <p class="empty">No matches found. Add donor and recipient records, then apply filters.</p>
         {% endif %}
-    </div>
+    </main>
 </body>
 </html>
